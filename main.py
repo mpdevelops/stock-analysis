@@ -1,5 +1,7 @@
 from urllib.request import urlopen, Request
 from bs4 import BeautifulSoup
+from nltk.sentiment.vader import SentimentIntensityAnalyzer
+import pandas as pd
 
 finviz_url = 'https://finviz.com/quote.ashx?t='
 tickers = ['AMZN', 'MSFT', 'GOOG']
@@ -33,4 +35,9 @@ for ticker, news_table in news_tables.items():
 
         parsed_data.append([ticker, date, time, title])
 
-print(parsed_data)
+df = pd.DataFrame(parsed_data, columns=['ticker', 'date', 'time', 'title'])
+
+vader = SentimentIntensityAnalyzer()
+
+f = lambda title: vader.polarity_scores(title)['compound']
+df['compound'] = df['title'].apply(f)
